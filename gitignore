@@ -1,0 +1,86 @@
+ 6  
+.gitignore
+@@ -1,6 +1,2 @@
+Output/**
+Boot2Docker/*.iso
+Boot2Docker/*.exe
+msysGit/**
+VirtualBox/**
+docker/*.exe
+bundle/**
+  14  
+Boot2Docker.iss
+@@ -7,17 +7,13 @@
+#define MyAppURL "https://docker.com"
+#define MyAppContact "https://docs.docker.com"
+
+#define b2dIso ".\Boot2Docker\boot2docker.iso"
+#define b2dCli ".\Boot2Docker\boot2docker.exe"
+#define b2dIso ".\bundle\Boot2Docker\boot2docker.iso"
+#define b2dCli ".\bundle\Boot2Docker\boot2docker.exe"
+
+; https://msysgit.github.io
+; or https://github.com/msysgit/msysgit/releases/latest
+#define msysGit ".\msysGit\Git-1.9.5-preview20141217.exe"
+#define msysGit ".\bundle\msysGit\Git.exe"
+
+; https://www.virtualbox.org/wiki/Downloads
+; Then, run "VirtualBox-x.x.x-xxx-Win.exe --extract --path ."
+#define virtualBoxCommon ".\VirtualBox\common.cab"
+#define virtualBoxMsi ".\VirtualBox\VirtualBox-4.3.26-r98988-MultiArch_amd64.msi"
+#define virtualBoxCommon ".\bundle\VirtualBox\common.cab"
+#define virtualBoxMsi ".\bundle\VirtualBox\VirtualBox_amd64.msi"
+
+[Setup]
+; NOTE: The value of AppId uniquely identifies this application.
+  11  
+README.md
+@@ -4,12 +4,11 @@ Installation [instructions](https://docs.docker.com/installation/windows/) avail
+
+## What is included:
+
+- [msys-git 1.9.4](http://msysgit.github.io/) for tools like `OpenSSH` and `BASH`
+- [VirtualBox 4.3.26](https://www.virtualbox.org)
+- [Boot2Docker-cli management tool 1.3.0](https://github.com/boot2docker/boot2docker-cli)
+- [Boot2Docker ISO 1.3.0](https://github.com/boot2docker/boot2docker)
+
+(The ISO contains Docker 1.3.0 - unfortunately we don't have a native Windows Docker client yet.)
+- [msys-git](http://msysgit.github.io/) for tools like `OpenSSH` and `BASH`
+- [VirtualBox](https://www.virtualbox.org)
+- [Boot2Docker-cli management tool](https://github.com/boot2docker/boot2docker-cli)
+- [Boot2Docker ISO](https://github.com/boot2docker/boot2docker)
+- [Docker Client for Windows](https://github.com/docker/docker)
+
+## Why Inno Setup?
+
+  7  
+build.sh → bundle.sh
+@@ -4,14 +4,15 @@ set -e
+# Script to grab binaries that are going to be bundled with windows installer.
+# Note to maintainers: Update versions used below with newer releases
+
+mkdir -p "bundle" && cd "bundle"
+(
+	mkdir -p "VirtualBox" && cd "VirtualBox"
+
+	# http://www.virtualbox.org/manual/ch02.html
+	curl -s -L -o virtualbox.exe http://download.virtualbox.org/virtualbox/4.3.26/VirtualBox-4.3.26-98988-Win.exe
+	virtualbox.exe -extract -silent -path . && rm virtualbox.exe # not neeeded after extraction
+	rm *x86.msi # not needed as we only install 64-bit
+	# http://www.catonrug.net/2013/03/virtualbox-silent-install-store-oracle-certificate.html
+	mv *_amd64.msi VirtualBox_amd64.msi # remove version number
+)
+(
+	mkdir -p "Boot2Docker" && cd "Boot2Docker"
+@@ -20,9 +21,9 @@ set -e
+	curl -s -L -o boot2docker.exe https://github.com/boot2docker/boot2docker-cli/releases/download/v0.9.2/boot2docker-v0.9.2-windows-amd64.exe
+)
+(
+	mkdir -p "msysGit" && cd "mSysGit"
+	mkdir -p "msysGit" && cd "msysGit"
+
+	curl -s -L -o Git-1.9.5-preview20141217.exe https://github.com/msysgit/msysgit/releases/download/Git-1.9.5-preview20141217/Git-1.9.5-preview20141217.exe
+	curl -s -L -o Git.exe https://github.com/msysgit/msysgit/releases/download/Git-1.9.5-preview20141217/Git-1.9.5-preview20141217.exe
+)
+(
+	mkdir -p "docker" && cd "docker"
